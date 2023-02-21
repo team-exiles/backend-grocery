@@ -117,6 +117,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.User'
 
+import django_on_heroku
+django_on_heroku.settings(locals())
+del DATABASES['default']['OPTIONS']['sslmode']
+
 # ASGI_APPLICATION = "config.asgi.application"
 
 # CHANNEL_LAYERS = {

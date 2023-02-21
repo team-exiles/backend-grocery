@@ -9,6 +9,10 @@ channels = "*"
 daphne = "*"
 channels-redis = "*"
 djangorestframework = "*"
+psycopg2-binary = "*"
+django-environ = "*"
+django-on-heroku = "*"
+gunicorn = "*"
 
 [dev-packages]
 
