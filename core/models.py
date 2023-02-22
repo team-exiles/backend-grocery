@@ -12,7 +12,7 @@ class ItemList(models.Model):
     check_box = models.BooleanField(default=False)
     item = models.CharField(max_length=50)
     quantity = models.CharField(max_length=50, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    # created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     # archived = models.BooleanField(default=False)
 
     def __str__(self):

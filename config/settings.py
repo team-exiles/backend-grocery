@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     #THIRD-PARTY
     'core',
     'rest_framework',
+    'djoser',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -116,6 +118,15 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
 
 import django_on_heroku
 django_on_heroku.settings(locals())
