@@ -12,7 +12,7 @@ class ListConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        item = text_data_json['item']
+        item = text_data_json['item', 'quantity']
 
         self.send(text_data=json.dumps({'item': item}))
 

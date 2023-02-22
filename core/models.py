@@ -17,3 +17,7 @@ class ItemList(models.Model):
 
     def __str__(self):
         return f'{self.title}'
+
+
+class Item(models.Model):
+    list_for_items = models.ForeignKey(User, on_delete=models.CASCADE, )
