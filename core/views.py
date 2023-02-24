@@ -41,7 +41,6 @@ class ListDetail(RetrieveUpdateDestroyAPIView):
 class ListItems(ListCreateAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
-    lookup_url_kwarg = 'list_title'
 
     def get_queryset(self):
         return Item.objects.filter(user=self.request.user)
@@ -52,4 +51,3 @@ class ListItems(ListCreateAPIView):
 class ItemDetail(RetrieveUpdateDestroyAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
-    lookup_url_kwarg = 'list_title'

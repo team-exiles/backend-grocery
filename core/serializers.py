@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import User, ItemList, Item
 
+from drf_writable_nested import WritableNestedModelSerializer
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -26,7 +28,7 @@ class ItemSerializer(serializers.ModelSerializer):
             'title',
         )
 
-class ItemListSerializer(serializers.ModelSerializer):
+class ItemListSerializer(WritableNestedModelSerializer):
     owner = serializers.SlugRelatedField(slug_field='username', read_only=True)
     listForItems = ItemSerializer(many=True, required=False)
 

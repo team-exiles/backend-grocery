@@ -15,6 +15,7 @@ django-on-heroku = "*"
 gunicorn = "*"
 djoser = "*"
 django-cors-headers = "*"
+drf-writable-nested = "*"
 
 [dev-packages]
 
