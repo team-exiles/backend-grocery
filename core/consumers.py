@@ -1,20 +1,37 @@
 import json
 
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 
-class ListConsumer(WebsocketConsumer):
-    def connect(self):
-        self.accept()
+class ListConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.list_name = self.scope['url_route']['kwargs']['<int:list_id>']
+        self.list_group_name = 'list_%s' % self.list_name
 
-    def disconnect(self, close_code):
-        pass
+        await self.channel_layer.group_add(self.list_group_name, self.channel_name)
 
-    def receive(self, text_data):
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        # Leave room group
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+    # Receive list from WebSocket
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         item = text_data_json['item', 'quantity']
 
-        self.send(text_data=json.dumps({'item': item}))
+        # Send message to room group
+        await self.channel_layer.group_send(
+            self.room_group_name, {'type': 'item_incoming', 'item': item}
+        )
+
+    # Receive list from group
+    async def item_incoming(self, event):
+        item = event['item']
+
+        #Send item to WebSocket
+        await self.send(text_data=json.dumps({'item': item}))
 
 
 
