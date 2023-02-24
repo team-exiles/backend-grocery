@@ -28,7 +28,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 class ItemListSerializer(serializers.ModelSerializer):
     owner = serializers.SlugRelatedField(slug_field='username', read_only=True)
-    listForItems = ItemSerializer(many=True)
+    listForItems = ItemSerializer(many=True, required=False)
 
     class Meta:
         model = ItemList
