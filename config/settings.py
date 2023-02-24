@@ -1,19 +1,27 @@
 
 from pathlib import Path
 from corsheaders.defaults import default_headers
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env(
+    DEBUG=(bool, False),
+    USE_S3=(bool, False),
+)
+
+environ.Env.read_env()
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-hm4az95@pgpk$q%7a=^rc90@68lips$3rlr58$038zw9$e^=$-'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -73,10 +81,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': env.db()
 }
 
 
@@ -140,6 +145,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 
 import django_on_heroku
 django_on_heroku.settings(locals())
+del DATABASES['default']['OPTIONS']['sslmode']
 
 ASGI_APPLICATION = "config.asgi.application"
 

@@ -18,13 +18,13 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='User', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
-            model_name='item',
-            name='list_for_items',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='Items', to='core.itemlist', to_field='title'),
-        ),
-        migrations.AlterField(
             model_name='itemlist',
             name='title',
             field=models.CharField(max_length=50, unique=True),
+        ),
+        migrations.AlterField(
+            model_name='item',
+            name='list_for_items',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='Items', to='core.itemlist', to_field='title'),
         ),
     ]
