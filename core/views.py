@@ -31,7 +31,6 @@ class MyLists(ListCreateAPIView):
 
 class ListDetail(RetrieveUpdateDestroyAPIView):
     serializer_class = ItemListSerializer
-    lookup_url_kwarg = 'list_title'
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
