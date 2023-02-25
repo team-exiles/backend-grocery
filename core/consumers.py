@@ -5,6 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 class ListConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        print("Connected!")
         self.list_name = self.scope['url_route']['kwargs']['<int:list_id>']
         self.list_group_name = 'list_%s' % self.list_name
 
@@ -14,10 +15,12 @@ class ListConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Leave room group
+        print("Disconnected!")
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     # Receive list from WebSocket
     async def receive(self, text_data):
+        print(text_data)
         text_data_json = json.loads(text_data)
         item = text_data_json['item', 'quantity']
 

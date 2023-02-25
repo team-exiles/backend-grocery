@@ -143,6 +143,8 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     'content-disposition',
 ]
 
+CSRF_TRUSTED_ORIGINS = ["https://safe-plains-62725.herokuapp.com"]
+
 import django_on_heroku
 django_on_heroku.settings(locals())
 del DATABASES['default']['OPTIONS']['sslmode']
