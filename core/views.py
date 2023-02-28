@@ -3,6 +3,8 @@ from .models import User, ItemList, Item
 from rest_framework.generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 from .serializers import UserSerializer, ItemListSerializer, ItemSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
 # Create your views here.
 
 class UserView(ListCreateAPIView):
@@ -51,3 +53,11 @@ class ListItems(ListCreateAPIView):
 class ItemDetail(RetrieveUpdateDestroyAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
+
+# class CustomObtainAuthTokenView(ObtainAuthToken):
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         user = serializer.validated_data["user"]
+#         token, created = Token.objects.get_or_create(user=user)
+#         return Response({"token": token.key, "username": user.username})

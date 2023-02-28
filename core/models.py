@@ -9,9 +9,8 @@ class User(AbstractUser):
 class ItemList(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ItemLists')
     title = models.CharField(max_length=50)
-    # items_for_list = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='ListItems', null=True)
-    # created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    # archived = models.BooleanField(default=False)
+    archived = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True)
 
     def __str__(self):
         return f'{self.title}'
