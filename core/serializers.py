@@ -38,6 +38,8 @@ class ItemListSerializer(WritableNestedModelSerializer):
             'id',
             'owner',
             'title',
+            'archived',
+            'created_at',
             'listForItems',
         )
 
