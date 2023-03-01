@@ -148,6 +148,7 @@ CSRF_TRUSTED_ORIGINS = ["https://safe-plains-62725.herokuapp.com"]
 
 import django_on_heroku
 django_on_heroku.settings(locals())
+DATABASES['default']['CONN_MAX_AGE'] = 0
 del DATABASES['default']['OPTIONS']['sslmode']
 
 ASGI_APPLICATION = "config.asgi.application"
