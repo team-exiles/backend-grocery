@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, ItemList, Item
+from .models import User, ItemList, Item, Invitation
 
 from drf_writable_nested import WritableNestedModelSerializer
 
@@ -45,14 +45,19 @@ class ItemListSerializer(WritableNestedModelSerializer):
             'listForItems',
         )
 
-    def create(self, validated_data):
-        return ItemList.objects.create(**validated_data)
+    # def create(self, validated_data):
+    #     return ItemList.objects.create(**validated_data)
 
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.users = validated_data.get('users', instance.users)
-        instance.save()
-        return instance
+    # def update(self, instance, validated_data):
+    #     instance.name = validated_data.get('name', instance.name)
+    #     instance.users = validated_data.get('users', instance.users)
+    #     instance.save()
+    #     return instance
+    
+class InvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Invitation
+        fields = '__all__'
 
 # class MessageSerializer(serializers.ModelSerializer):
 #     from_user = serializers.SerializerMethodField()
