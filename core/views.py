@@ -24,6 +24,7 @@ class ItemListsList(ListAPIView):
 
 class MyLists(ListCreateAPIView):
     serializer_class = ItemListSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return ItemList.objects.filter(owner=self.request.user)
@@ -33,12 +34,40 @@ class MyLists(ListCreateAPIView):
 
 class ListDetail(RetrieveUpdateDestroyAPIView):
     serializer_class = ItemListSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if self.request.method == 'GET':
             return ItemList.objects.all()
         return ItemList.objects.filter(owner=self.request.user)
+    
+    def perform_update(self, serializer):
+        serializer.save()
+
+    # def put(self, request, *args, **kwargs):
+    #     list = self.get_object()
+    #     user_id = request.data.get('user_id', None)
+    #     if user_id:
+    #         user = User.objects.get(id=user_id).user
+    #         list.users.add(user)
+    #         list.save()
+    #         return Response({'status': 'user added to list'}, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response({'status': 'user_id required'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def put(self, request, *args, **kwargs):
+        list_obj = self.get_object()
+        user_id = request.data.get('user_id')
+        action = request.data.get('action')
+
+        if user_id and action:
+            user_obj = User.objects.get(id=user_id)
+            if action == 'add':
+                list_obj.users.add(user_obj)
+            elif action == 'remove':
+                list_obj.users.remove(user_obj)
+        return self.update(request, *args, **kwargs)
     
 class ListItems(ListCreateAPIView):
     queryset = Item.objects.all()
@@ -49,6 +78,13 @@ class ListItems(ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    # def perform_create(self, serializer):
+    #     list_id = self.kwargs['list_id']
+    #     list_obj = ItemList.objects.get(id=list_id)
+    #     if list_obj.owner != self.request.user and self.request.user not in list_obj.invited_users.all():
+    #         raise permissions.PermissionDenied
+    #     serializer.save(list=list_obj)
 
 class ItemDetail(RetrieveUpdateDestroyAPIView):
     queryset = Item.objects.all()
