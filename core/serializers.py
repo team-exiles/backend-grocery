@@ -30,6 +30,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 class ItemListSerializer(WritableNestedModelSerializer):
     owner = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    shared_users = UserSerializer(many=True, required=False)
     listForItems = ItemSerializer(many=True, required=False)
 
     class Meta:
@@ -37,11 +38,21 @@ class ItemListSerializer(WritableNestedModelSerializer):
         fields = (
             'id',
             'owner',
+            'shared_users',
             'title',
             'archived',
             'created_at',
             'listForItems',
         )
+
+    def create(self, validated_data):
+        return ItemList.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.users = validated_data.get('users', instance.users)
+        instance.save()
+        return instance
 
 # class MessageSerializer(serializers.ModelSerializer):
 #     from_user = serializers.SerializerMethodField()

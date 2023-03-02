@@ -4,39 +4,58 @@ from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketCons
 from .models import Item, User, ItemList
 # from .serializers import MessageSerializer
 
+# myapp/consumers.py
+
+import json
+
+from channels.generic.websocket import AsyncWebsocketConsumer
+from .models import Item, ItemList
 
 class ListConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        print("Connected!")
-        self.list_name = self.scope['url_route']['kwargs']['<int:list_id>']
-        self.list_group_name = 'list_%s' % self.list_name
+        self.itemlist_id = self.scope['url_route']['kwargs']['itemlist_id']
+        self.itemlist_group_name = 'list_%s' % self.itemlist_id
 
-        await self.channel_layer.group_add(self.list_group_name, self.channel_name)
+        # Join list group
+        await self.channel_layer.group_add(
+            self.itemlist_group_name,
+            self.channel_name
+        )
 
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Leave room group
-        print("Disconnected!")
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-
-    # Receive list from WebSocket
-    async def receive(self, text_data):
-        print(text_data)
-        text_data_json = json.loads(text_data)
-        item = text_data_json['item', 'quantity']
-
-        # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name, {'type': 'item_incoming', 'item': item}
+        # Leave list group
+        await self.channel_layer.group_discard(
+            self.itemlist_group_name,
+            self.channel_name
         )
 
-    # Receive list from group
-    async def item_incoming(self, event):
-        item = event['item']
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        item_id = data['item_id']
 
-        #Send item to WebSocket
-        await self.send(text_data=json.dumps({'item': item}))
+        # Retrieve the item and list objects
+        item = Item.objects.get(id=item_id)
+        list_obj = ItemList.objects.get_or_create(id=self.itemlist_id)
+
+        # Add the item to the list and save it
+        list_obj.items.add(item)
+        list_obj.save()
+
+        # Send a message to the list group with the updated list
+        await self.channel_layer.group_send(
+            self.list_group_name,
+            {
+                'type': 'list.update',
+                'list': list_obj.to_json()
+            }
+        )
+
+    async def list_update(self, event):
+        # Send the updated list to the client
+        await self.send(text_data=json.dumps(event['list']))
+
 
 
 

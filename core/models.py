@@ -8,6 +8,7 @@ class User(AbstractUser):
 
 class ItemList(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ItemLists')
+    shared_users = models.ManyToManyField(User, related_name='shared_lists')
     title = models.CharField(max_length=50)
     archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True)
