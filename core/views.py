@@ -1,10 +1,13 @@
 from django.shortcuts import render
-from .models import User, ItemList, Item
+from .models import User, ItemList, Item, Invitation
 from rest_framework.generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
-from .serializers import UserSerializer, ItemListSerializer, ItemSerializer
+from rest_framework.views import APIView
+from .serializers import UserSerializer, ItemListSerializer, ItemSerializer, InvitationSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.response import Response
+from rest_framework import status
 # Create your views here.
 
 class UserView(ListCreateAPIView):
@@ -56,18 +59,18 @@ class ListDetail(RetrieveUpdateDestroyAPIView):
     #         return Response({'status': 'user_id required'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-    def put(self, request, *args, **kwargs):
-        list_obj = self.get_object()
-        user_id = request.data.get('user_id')
-        action = request.data.get('action')
+    # def put(self, request, *args, **kwargs):
+    #     list_obj = self.get_object()
+    #     user_id = request.data.get('user_id')
+    #     action = request.data.get('action')
 
-        if user_id and action:
-            user_obj = User.objects.get(id=user_id)
-            if action == 'add':
-                list_obj.users.add(user_obj)
-            elif action == 'remove':
-                list_obj.users.remove(user_obj)
-        return self.update(request, *args, **kwargs)
+    #     if user_id and action:
+    #         user_obj = User.objects.get(id=user_id)
+    #         if action == 'add':
+    #             list_obj.users.add(user_obj)
+    #         elif action == 'remove':
+    #             list_obj.users.remove(user_obj)
+    #     return self.update(request, *args, **kwargs)
     
 class ListItems(ListCreateAPIView):
     queryset = Item.objects.all()
@@ -89,6 +92,38 @@ class ListItems(ListCreateAPIView):
 class ItemDetail(RetrieveUpdateDestroyAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
+
+class InviteUserView(APIView):
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        itemlist_id = request.data.get('itemlist_id')
+        invited_by = request.user
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_201_CREATED)
+
+        try:
+            itemlist = ItemList.objects.get(id=itemlist_id, owner=request.user)
+        except ItemList.DoesNotExist:
+            return Response({'error': 'List not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        invitation = Invitation(itemlist=itemlist, user=user, invited_by=invited_by)
+        invitation.save()
+
+        serializer = InvitationSerializer(invitation)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+class AcceptInvitationView(APIView):
+    def post(self, request):
+        invitation_id = request.data.get('invitation_id')
+        try:
+            invitation = Invitation.objects.get(id=invitation_id, user=request.user)
+        except Invitation.DoesNotExist:
+            return
+        invitation.accepted = True
+        invitation.save()
 
 # class CustomObtainAuthTokenView(ObtainAuthToken):
 #     def post(self, request, *args, **kwargs):
