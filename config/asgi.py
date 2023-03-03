@@ -18,6 +18,6 @@ import core.routing
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
-        "websocket": TokenAuthMiddleware(URLRouter(core.routing.websocket_urlpatterns)),
+        "websocket": AuthMiddlewareStack(URLRouter(core.routing.websocket_urlpatterns)),
     }
 )
