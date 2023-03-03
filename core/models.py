@@ -26,13 +26,13 @@ class Item(models.Model):
     def __str__(self):
         return f'{self.item}'
     
-# class Invitation(models.Model):
-#     list = models.ForeignKey(ItemList, on_delete=models.CASCADE)
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invitations_sent')
+class Invitation(models.Model):
+    list = models.ForeignKey(ItemList, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invitations_sent')
 
-#     def __str__(self):
-#         return f"Invitation from {self.invited_by.username} to {self.user.username} for {self.list.title}"
+    def __str__(self):
+        return f"Invitation from {self.invited_by.username} to {self.user.username} for {self.list.title}"
 
 
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, ItemList, Item
+from .models import User, ItemList, Item, Invitation
 
 from drf_writable_nested import WritableNestedModelSerializer
 
@@ -54,15 +54,15 @@ class ItemListSerializer(WritableNestedModelSerializer):
     #     instance.save()
     #     return instance
     
-# class InvitationSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Invitation
-#         fields = (
-#             'id',
-#             'list',
-#             'user',
-#             'invited_by',
-#         )
+class InvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Invitation
+        fields = (
+            'id',
+            'list',
+            'user',
+            'invited_by',
+        )
 
 # class MessageSerializer(serializers.ModelSerializer):
 #     from_user = serializers.SerializerMethodField()
