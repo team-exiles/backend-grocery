@@ -40,19 +40,11 @@ class ItemListSerializer(WritableNestedModelSerializer):
             'owner',
             'shared_users',
             'title',
+            'active_shopping',
             'archived',
             'created_at',
             'listForItems',
         )
-
-    # def create(self, validated_data):
-    #     return ItemList.objects.create(**validated_data)
-
-    # def update(self, instance, validated_data):
-    #     instance.name = validated_data.get('name', instance.name)
-    #     instance.users = validated_data.get('users', instance.users)
-    #     instance.save()
-    #     return instance
     
 class InvitationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -63,29 +55,3 @@ class InvitationSerializer(serializers.ModelSerializer):
             'user',
             'invited_by',
         )
-
-# class MessageSerializer(serializers.ModelSerializer):
-#     from_user = serializers.SerializerMethodField()
-#     to_user = serializers.SerializerMethodField()
-#     conversation = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = Message
-#         fields = (
-#             "id",
-#             "conversation",
-#             "from_user",
-#             "to_user",
-#             "content",
-#             "timestamp",
-#             "read",
-#         )
-
-#     def get_conversation(self, obj):
-#         return str(obj.conversation.id)
-
-#     def get_from_user(self, obj):
-#         return UserSerializer(obj.from_user).data
-
-#     def get_to_user(self, obj):
-#         return UserSerializer(obj.to_user).data

@@ -1,5 +1,5 @@
 import json
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer
 from .models import Item, User, ItemList
 # from .serializers import MessageSerializer
@@ -33,24 +33,25 @@ class ListConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        item_id = data['item_id']
+        item_id = data.get('item_id')
 
-        # Retrieve the item and list objects
-        item = Item.objects.get(id=item_id)
-        list_obj = ItemList.objects.get_or_create(id=self.itemlist_id)
+        if item_id is not None:
+            item = await sync_to_async(Item.objects.get)(id=item_id)
+            list_obj = await sync_to_async(ItemList.objects.get_or_create)(id=self.itemlist_id)
+            
 
         # Add the item to the list and save it
-        list_obj.items.add(item)
-        list_obj.save()
+            list_obj.items.add(item)
+            await sync_to_async(list_obj.save)()
 
         # Send a message to the list group with the updated list
-        await self.channel_layer.group_send(
-            self.list_group_name,
-            {
-                'type': 'list.update',
-                'list': list_obj.to_json()
-            }
-        )
+            await self.channel_layer.group_send(
+                self.list_group_name,
+                {
+                    'type': 'list.update',
+                    'list': list_obj.to_json()
+                }
+            )
 
     async def list_update(self, event):
         # Send the updated list to the client
