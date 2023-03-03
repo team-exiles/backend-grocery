@@ -1,14 +1,20 @@
-from django.shortcuts import render
-from .models import User, ItemList, Item
-from rest_framework.generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
+from django.shortcuts import render, get_object_or_404
+from .models import User, ItemList, Item, Invitation
+from rest_framework.generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
 from rest_framework.views import APIView
-from .serializers import UserSerializer, ItemListSerializer, ItemSerializer
-from rest_framework.permissions import IsAuthenticated
+from .serializers import UserSerializer, ItemListSerializer, ItemSerializer, InvitationSerializer
+from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework import status
 # Create your views here.
+
+class IsOwner(BasePermission):
+    # h.o.p. perform the check and returns boolean value indicating if user has permission to perform action
+    def has_object_permission(self, request, view, obj):
+        # Compares by checking whether the user is the owner of the list
+        return obj.owner == request.user
 
 class UserView(ListCreateAPIView):
     queryset = User.objects.all()
@@ -93,6 +99,24 @@ class ItemDetail(RetrieveUpdateDestroyAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
 
+class ListInviteView(UpdateAPIView):
+    queryset = ItemList.objects.all()
+    serializer_class = ItemListSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+
+    def put(self, request, *args, **kwargs):
+        list_object = self.get_object()
+        user_id = request.data.get('user_id')
+        print('USER ID:', user_id)
+        user = get_object_or_404(User, id=user_id)
+        print('USER:', user)
+
+        list_object.shared_users.add(user)
+        list_object.save()
+        serializer = self.get_serializer(list_object)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 # class InviteUserView(APIView):
 #     serializer_class = InvitationSerializer
 
@@ -118,6 +142,22 @@ class ItemDetail(RetrieveUpdateDestroyAPIView):
 #         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 # class AcceptInvitationView(APIView):
+#     serializer_class = InvitationSerializer
+
+#     def get_queryset(self):
+#         return Invitation.objects.filter(id=self.kwargs['invitation_id'])
+    
+#     def partial_update(self, request, *args, **kwargs):
+#         invitation = self.get_object()
+#         if 'username' in request.data:
+#             user = User.objects.get(username=request.data['username'])
+#             ItemList.shared_users.add(user)
+#             serializer = self.get_serializer(Invitation, data=request.data, partial=True)
+#             serializer.is_valid(raise_exception=True)
+#             self.perform_update(serializer)
+#             return JsonResponse({'message': f'{user} has left the group'}, status=200)
+
+
 #     def post(self, request):
 #         invitation_id = request.data.get('invitation_id')
 #         item_list = ItemList.objects.get(id=request.data['itemlist_id'])
