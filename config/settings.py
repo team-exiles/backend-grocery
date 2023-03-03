@@ -24,6 +24,8 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
+REDIS_URL = env('REDIS_URL')
+
 ALLOWED_HOSTS = ['https://safe-plains-62725.herokuapp.com/', '127.0.0.1']
 
 
