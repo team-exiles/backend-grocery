@@ -6,3 +6,4 @@ from .models import User, ItemList, Item
 admin.site.register(User)
 admin.site.register(ItemList)
 admin.site.register(Item)
+# admin.site.register(Invitation)
