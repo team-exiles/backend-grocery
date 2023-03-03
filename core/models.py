@@ -11,6 +11,7 @@ class ItemList(models.Model):
     shared_users = models.ManyToManyField(User, related_name='shared_lists')
 
     title = models.CharField(max_length=50)
+    active_shopping = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True)
 
@@ -33,20 +34,3 @@ class Invitation(models.Model):
 
     def __str__(self):
         return f"Invitation from {self.invited_by.username} to {self.user.username} for {self.list.title}"
-
-
-
-# class SharedWith(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ListOwner')
-#     shared_list = models.ForeignKey(User, on_delete=models.CASCADE, related_name='SharedList')
-#     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_index=True)
-
-#     class Meta:
-#         constraints = [
-#             models.UniqueConstraint(
-#                 fields=['user', 'shared_list'], name='unique_shared'
-#             )
-#         ]
-
-#     def __str__(self):
-#         return f'{self.user} is now following list {self.shared_list}'

@@ -10,7 +10,7 @@ urlpatterns = [
     path('items/', views.ListItems.as_view(), name='items_list'),
     path('items/<int:pk>/', views.ItemDetail.as_view(), name='item_detail'),
     path('lists/<int:pk>/invite/', views.ListInviteView.as_view(), name='list_invite'),
-    path('ws/', include(routing.websocket_urlpatterns)),
+    path('lists/<int:pk>/remove/<str:username>/', views.ListRemoveUserView.as_view()),
 ]
 
 
