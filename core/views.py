@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from .models import User, ItemList, Item, Invitation
+from .models import User, ItemList, Item
 from rest_framework.generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
-from .serializers import UserSerializer, ItemListSerializer, ItemSerializer, InvitationSerializer
+from .serializers import UserSerializer, ItemListSerializer, ItemSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -93,37 +93,53 @@ class ItemDetail(RetrieveUpdateDestroyAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
 
-class InviteUserView(APIView):
-    def post(self, request):
-        user_id = request.data.get('user_id')
-        itemlist_id = request.data.get('itemlist_id')
-        invited_by = request.user
+# class InviteUserView(APIView):
+#     serializer_class = InvitationSerializer
 
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_201_CREATED)
+#     def post(self, request):
+#         user_id = request.data.get('user_id')
+#         itemlist_id = request.data.get('itemlist_id')
+#         invited_by = request.user
 
-        try:
-            itemlist = ItemList.objects.get(id=itemlist_id, owner=request.user)
-        except ItemList.DoesNotExist:
-            return Response({'error': 'List not found'}, status=status.HTTP_404_NOT_FOUND)
+#         try:
+#             user = User.objects.get(id=user_id)
+#         except User.DoesNotExist:
+#             return Response({'error': 'User not found'}, status=status.HTTP_201_CREATED)
 
-        invitation = Invitation(itemlist=itemlist, user=user, invited_by=invited_by)
-        invitation.save()
+#         try:
+#             itemlist = ItemList.objects.get(id=itemlist_id, owner=request.user)
+#         except ItemList.DoesNotExist:
+#             return Response({'error': 'List not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = InvitationSerializer(invitation)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         invitation = Invitation(itemlist=itemlist, user=user, invited_by=invited_by)
+#         invitation.save()
+
+#         serializer = InvitationSerializer(invitation)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
-class AcceptInvitationView(APIView):
-    def post(self, request):
-        invitation_id = request.data.get('invitation_id')
-        try:
-            invitation = Invitation.objects.get(id=invitation_id, user=request.user)
-        except Invitation.DoesNotExist:
-            return
-        invitation.accepted = True
-        invitation.save()
+# class AcceptInvitationView(APIView):
+#     def post(self, request):
+#         invitation_id = request.data.get('invitation_id')
+#         item_list = ItemList.objects.get(id=request.data['itemlist_id'])
+#         user = User.objects.get(id=request.data['user_id'])
+#         try:
+#             invitation = Invitation.objects.get(id=invitation_id, user=request.user)
+#         except Invitation.DoesNotExist:
+#             return
+#         item_list.shared_users.add(user)
+#         invitation.save()
+
+# class RejectInvitationView(APIView):
+#     def post(self, request):
+#         invitation_id = request.data.get('invitation_id')
+#         item_list = ItemList.objects.get(id=request.data['itemlist_id'])
+#         user = User.objects.get(id=request.data['user_id'])
+#         try:
+#             invitation = Invitation.objects.get(id=invitation_id, user=request.user)
+#         except Invitation.DoesNotExist:
+#             return
+#         item_list.shared_users.add(user)
+#         invitation.save()
 
 # class CustomObtainAuthTokenView(ObtainAuthToken):
 #     def post(self, request, *args, **kwargs):
