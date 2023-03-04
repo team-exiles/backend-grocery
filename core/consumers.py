@@ -41,15 +41,14 @@ class ListConsumer(AsyncWebsocketConsumer):
             
 
         # Add the item to the list and save it
-            list_obj.items.add(item)
-            await sync_to_async(list_obj.save)()
+            new_item = await sync_to_async(Item.objects.create)(list_for_items=list_obj[0], item=item.item)
 
         # Send a message to the list group with the updated list
             await self.channel_layer.group_send(
-                self.list_group_name,
+                self.itemlist_group_name,
                 {
                     'type': 'list.update',
-                    'list': list_obj.to_json()
+                    'list': await sync_to_async(list_obj[0].to_json)()
                 }
             )
 
