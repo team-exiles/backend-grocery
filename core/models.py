@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.serializers import serialize
+import json
 # Create your models here.
 
 class User(AbstractUser):
@@ -14,6 +16,13 @@ class ItemList(models.Model):
     active_shopping = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True)
+
+    def to_json(self):
+        json_data = serialize('json', [self])
+        struct = json.loads(json_data)
+        data = struct[0]['fields']
+        data['id'] = struct[0]['pk']
+        return data
 
     def __str__(self):
         return f'{self.title}'
