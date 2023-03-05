@@ -4,6 +4,13 @@ from django.core.serializers import serialize
 import json, string, random
 # Create your models here.
 
+def random_string_generator(size=10, chars=string.digits):
+    while True:
+        string = ''.join(random.choice(chars) for _ in range(10))
+        if ItemList.objects.filter(auth_id=string).count() == 0:
+            break
+    return string
+
 class User(AbstractUser):
     def __str__(self):
         return self.username
@@ -13,7 +20,7 @@ class ItemList(models.Model):
     shared_users = models.ManyToManyField(User, related_name='shared_lists')
 
     title = models.CharField(max_length=50)
-    auth_id = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+    auth_id = models.CharField(max_length=15, default=random_string_generator)
     active_shopping = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True)
