@@ -37,6 +37,7 @@ class ItemListSerializer(WritableNestedModelSerializer):
         model = ItemList
         fields = (
             'id',
+            'auth_id',
             'owner',
             'shared_users',
             'title',

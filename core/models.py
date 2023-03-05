@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.serializers import serialize
-import json
+import json, string, random
 # Create your models here.
 
 class User(AbstractUser):
@@ -13,6 +13,7 @@ class ItemList(models.Model):
     shared_users = models.ManyToManyField(User, related_name='shared_lists')
 
     title = models.CharField(max_length=50)
+    auth_id = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
     active_shopping = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True)
