@@ -47,7 +47,7 @@ class MyLists(ListCreateAPIView):
 
 class ListDetail(RetrieveUpdateDestroyAPIView):
     serializer_class = ItemListSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrSharedUser]
+    # permission_classes = [IsAuthenticated, IsOwnerOrSharedUser]
 
     def get_queryset(self):
         if self.request.method == 'GET':
