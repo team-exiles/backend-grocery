@@ -48,7 +48,7 @@ class ListConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         item_id = data.get('item_id')
         archived = data.get('archived')
-        print(archived)
+        active_shopping = data.get('active_shopping')
 
         if item_id is not None:
             item = await sync_to_async(Item.objects.get)(id=item_id)
@@ -61,9 +61,12 @@ class ListConsumer(AsyncWebsocketConsumer):
             await self.save_item(new_item)
 
         if archived is not None:
-            print("HELLO!!!!!!!!!!!!!!")
             list_obj = await self.update_list(self.itemlist_id, archived)
             # Send the updated archived status to the client
+            await self.save_list(list_obj)
+
+        if active_shopping is not None:
+            list_obj = await self.update_active_shopping(self.itemlist_id, active_shopping)
             await self.save_list(list_obj)
 
             # Send a message to the list group with the updated list
@@ -88,6 +91,13 @@ class ListConsumer(AsyncWebsocketConsumer):
         itemlist, _ = ItemList.objects.get_or_create(id=itemlist_id)
         itemlist.archived = archived
         itemlist.save()
+        return itemlist
+    
+    @database_sync_to_async
+    def update_active_shopping(self, itemlist_id, active_shopping):
+        itemlist = ItemList.objects.get(id=itemlist_id)
+        itemlist.active_shopping = active_shopping
+        itemlist.save
         return itemlist
 
     @database_sync_to_async
