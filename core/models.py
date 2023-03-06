@@ -40,6 +40,7 @@ class Item(models.Model):
     list_for_items = models.ForeignKey(ItemList, on_delete=models.CASCADE, related_name='listForItems', null=True)
     item = models.CharField(max_length=50)
     check_box = models.BooleanField(default=False)
+    missing = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.item}'

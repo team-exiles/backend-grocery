@@ -78,8 +78,8 @@ class ListInviteView(UpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         list_object = self.get_object()
-        user_id = request.data.get('user_id')
-        user = get_object_or_404(User, id=user_id)
+        username = request.data.get('username')
+        user = get_object_or_404(User, username=username)
 
         if user == list_object.owner or user in list_object.shared_users.all():
             return Response({'detail': 'User is already a collaborator on this list.'})
@@ -88,6 +88,9 @@ class ListInviteView(UpdateAPIView):
         list_object.save()
         serializer = self.get_serializer(list_object)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def get_object(self):
+        return self.request.user.ItemLists.get(id=self.kwargs['pk'])
 
 class ListRemoveUserView(APIView):
     permission_classes = [IsAuthenticated, IsOwner]

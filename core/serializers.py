@@ -25,6 +25,7 @@ class ItemSerializer(serializers.ModelSerializer):
             'list_for_items',
             'item',
             'check_box',
+            'missing',
             'title',
         )
 
