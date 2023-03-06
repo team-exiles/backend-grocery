@@ -74,7 +74,6 @@ class ItemDetail(RetrieveUpdateDestroyAPIView):
 class ListInviteView(UpdateAPIView):
     queryset = ItemList.objects.all()
     serializer_class = ItemListSerializer
-    permission_classes = [IsOwner]
 
     def put(self, request, *args, **kwargs):
         list_object = self.get_object()
