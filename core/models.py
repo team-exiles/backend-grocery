@@ -27,21 +27,21 @@ class ItemList(models.Model):
     archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True)
 
-    def save(self, *args, **kwargs):
-        channel_layer = get_channel_layer()
+    # def save(self, *args, **kwargs):
+    #     channel_layer = get_channel_layer()
 
-        # Check if the archived field has changed
-        if 'archived' in self.changed_fields:
-            # Send an archived status update message to the group
-            async_to_sync(channel_layer.group_send)(
-                f'list_{self.id}',
-                {
-                    'type': 'archived.update',
-                    'archived': self.archived
-                }
-            )
+    #     # Check if the archived field has changed
+    #     if 'archived' in self.changed_fields:
+    #         # Send an archived status update message to the group
+    #         async_to_sync(channel_layer.group_send)(
+    #             f'list_{self.id}',
+    #             {
+    #                 'type': 'archived.update',
+    #                 'archived': self.archived
+    #             }
+    #         )
 
-        super().save(*args, **kwargs)
+    #     super().save(*args, **kwargs)
 
     def to_json(self):
         json_data = serialize('json', [self])
