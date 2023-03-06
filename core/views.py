@@ -1,11 +1,9 @@
 from django.shortcuts import render, get_object_or_404
-from .models import User, ItemList, Item, Invitation
+from .models import User, ItemList, Item
 from rest_framework.generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
 from rest_framework.views import APIView
-from .serializers import UserSerializer, ItemListSerializer, ItemSerializer, InvitationSerializer
+from .serializers import UserSerializer, ItemListSerializer, ItemSerializer
 from rest_framework.permissions import IsAuthenticated, BasePermission
-from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework import status
 # Create your views here.
@@ -31,9 +29,6 @@ class UserView(ListCreateAPIView):
 class ItemListsList(ListAPIView):
     queryset = ItemList.objects.all()
     serializer_class = ItemListSerializer
-
-    # def list(request, list_name):
-    #     return render(request, {'list_name': list_name})
 
 class MyLists(ListCreateAPIView):
     serializer_class = ItemListSerializer
@@ -116,11 +111,3 @@ class SharedListAPIView(ListAPIView):
     def get_queryset(self):
         user = self.request.user
         return ItemList.objects.filter(shared_users=user)
-
-# class CustomObtainAuthTokenView(ObtainAuthToken):
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.validated_data["user"]
-#         token, created = Token.objects.get_or_create(user=user)
-#         return Response({"token": token.key, "username": user.username})

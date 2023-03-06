@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, ItemList, Item, Invitation
+from .models import User, ItemList, Item
 
 from drf_writable_nested import WritableNestedModelSerializer
 
@@ -46,14 +46,4 @@ class ItemListSerializer(WritableNestedModelSerializer):
             'archived',
             'created_at',
             'listForItems',
-        )
-    
-class InvitationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Invitation
-        fields = (
-            'id',
-            'list',
-            'user',
-            'invited_by',
         )
