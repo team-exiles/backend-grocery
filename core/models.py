@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.serializers import serialize
 import json, string, random
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 # Create your models here.
 
 def random_string_generator(size=10, chars=string.digits):
@@ -24,6 +26,22 @@ class ItemList(models.Model):
     active_shopping = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True)
+
+    def save(self, *args, **kwargs):
+        channel_layer = get_channel_layer()
+
+        # Check if the archived field has changed
+        if 'archived' in self.changed_fields:
+            # Send an archived status update message to the group
+            async_to_sync(channel_layer.group_send)(
+                f'list_{self.id}',
+                {
+                    'type': 'archived.update',
+                    'archived': self.archived
+                }
+            )
+
+        super().save(*args, **kwargs)
 
     def to_json(self):
         json_data = serialize('json', [self])

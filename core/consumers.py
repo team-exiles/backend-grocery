@@ -47,6 +47,7 @@ class ListConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         item_id = data.get('item_id')
+        archived = data.get('archived')
 
         if item_id is not None:
             item = await sync_to_async(Item.objects.get)(id=item_id)
@@ -54,6 +55,11 @@ class ListConsumer(AsyncWebsocketConsumer):
 
             # Add the item to the list and save it
             new_item = await self.create_item(list_obj, item.item)
+
+            if archived is not None:
+                archived = await sync_to_async(ItemList.objects.get)(archived=archived)
+                list_obj = await self.update_list(self.itemlist_id, archived)
+                # Send the updated archived status to the client
 
             # Save the new item to the database
             await self.save_item(new_item)
@@ -72,8 +78,26 @@ class ListConsumer(AsyncWebsocketConsumer):
         item.save()
 
     @database_sync_to_async
+    def update_list(self, itemlist_id, archived):
+        itemlist, _ = ItemList.objects.get_or_create(id=itemlist_id)
+        itemlist.archived = archived
+        itemlist.save()
+        return itemlist
+
+    @database_sync_to_async
     def list_to_json(self, list_obj):
         return list_obj.to_json()
+    
+    async def archived_update(self, event):
+        # Update the archived field of the list
+        itemlist_id = event['itemlist_id']
+        archived = event['archived']
+        await self.update_list(itemlist_id, archived)
+
+        # Send the updated archived status to the client
+        await self.send(text_data=json.dumps({
+            'archived': archived
+        }))
 
     async def list_update(self, event):
         # Send the updated list to the client

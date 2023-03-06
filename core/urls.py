@@ -11,6 +11,7 @@ urlpatterns = [
     path('items/<int:pk>/', views.ItemDetail.as_view(), name='item_detail'),
     path('lists/<int:pk>/invite/', views.ListInviteView.as_view(), name='list_invite'),
     path('lists/<int:pk>/remove/<str:username>/', views.ListRemoveUserView.as_view()),
+    path('lists/shared/', views.SharedListAPIView.as_view(), name='shared_lists'),
 ]
 
 

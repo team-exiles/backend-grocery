@@ -107,6 +107,14 @@ class ListRemoveUserView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        
+class SharedListAPIView(ListAPIView):
+    serializer_class = ItemListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return ItemList.objects.filter(shared_users=user)
 
 # class CustomObtainAuthTokenView(ObtainAuthToken):
 #     def post(self, request, *args, **kwargs):

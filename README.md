@@ -20,3 +20,4 @@ Production URL: https://safe-plains-62725.herokuapp.com/
 | DELETE     | /items/<int:pk>                       | Deletes a specific item.               |
 | POST       | /lists/<int:pk>/invite/               | Adds a user to a list.                 |
 | DELETE     | lists/<int:pk>/remove/<str:username>/ | Deletes a specific item.               |
+| GET        | lists/shared/                         | Gets lists you are invited to.         |
