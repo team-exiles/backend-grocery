@@ -8,16 +8,11 @@ from .encoder import ItemEncoder
 from .serializers import ItemSerializer
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-# from .serializers import MessageSerializer
-
-# myapp/consumers.py
-
-# User = get_user_model()
-
 import json
-
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import Item, ItemList
+
+
 
 class ListConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -80,22 +75,6 @@ class ListConsumer(AsyncWebsocketConsumer):
 
             except Exception as e:
                 raise Http404(str(e))
-
-            # Save the new item to the database
-
-
-            # Saves new item to database
-            # await database_sync_to_async(new_item.save)()
-            # item_serializer = ItemSerializer(new_item)
-            # serialized_item = json.dumps(item_serializer.data)
-
-            # await self.channel_layer.group_send(
-            #     self.itemlist_group_name,
-            #     {
-            #         'type': 'item.new',
-            #         'item': serialized_item,
-            #     }
-            # )
 
         archived = data.get('archived')
         active_shopping = data.get('active_shopping')
@@ -160,17 +139,6 @@ class ListConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def list_to_json(self, list_obj):
         return list_obj.to_json()
-    
-    # async def archived_update(self, event):
-    #     # Update the archived field of the list
-    #     itemlist_id = event['itemlist_id']
-    #     archived = event['archived']
-    #     await self.update_list(itemlist_id, archived)
-
-    #     # Send the updated archived status to the client
-    #     await self.send(text_data=json.dumps({
-    #         'archived': archived
-    #     }))
 
     async def list_update(self, event):
         # Send the updated list to the client
