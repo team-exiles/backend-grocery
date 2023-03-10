@@ -40,9 +40,17 @@ class ItemList(models.Model):
 class Item(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='Owner', null=True)
     list_for_items = models.ForeignKey(ItemList, on_delete=models.CASCADE, related_name='listForItems', null=True)
-    item = models.CharField(max_length=50)
+    item = models.CharField(max_length=150)
     check_box = models.BooleanField(default=False)
     missing = models.BooleanField(default=False)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'item': self.item,
+            'check_box': self.check_box,
+            'missing': self.missing,
+        }
 
     def __str__(self):
         return f'{self.item}'

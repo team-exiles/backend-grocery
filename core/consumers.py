@@ -3,9 +3,16 @@ from asgiref.sync import async_to_sync, sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import Item, User, ItemList
 from channels.db import database_sync_to_async
+from django.forms.models import model_to_dict
+from .encoder import ItemEncoder
+from .serializers import ItemSerializer
+from django.shortcuts import get_object_or_404
+from django.http import Http404
 # from .serializers import MessageSerializer
 
 # myapp/consumers.py
+
+# User = get_user_model()
 
 import json
 
@@ -38,7 +45,8 @@ class ListConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_or_create_list(self, itemlist_id):
-        return ItemList.objects.get_or_create(id=itemlist_id)
+        itemlist, _ = ItemList.objects.get_or_create(id=itemlist_id)
+        return itemlist
 
     @database_sync_to_async
     def create_item(self, list_obj, item_text):
@@ -46,19 +54,51 @@ class ListConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        item_id = data.get('item_id')
-        archived = data.get('archived')
-        active_shopping = data.get('active_shopping')
+        item_data = data
 
-        if item_id is not None:
-            item = await sync_to_async(Item.objects.get)(id=item_id)
-            list_obj, _ = await sync_to_async(ItemList.objects.get_or_create)(id=self.itemlist_id)
+        if item_data is not None:
+            itemlist = await sync_to_async(ItemList.objects.get)(id=self.itemlist_id)
+            new_item = Item(
+                list_for_items = itemlist,
+                item = item_data.get('item'),
+                check_box = item_data.get('check_box'),
+                missing = item_data.get('missing'),
+            )
 
-            # Add the item to the list and save it
-            new_item = await self.create_item(list_obj, item.item)
+            try:
+                await database_sync_to_async(new_item.save)()
+                item_serializer = ItemSerializer(new_item)
+                serialized_item = json.dumps(item_serializer.data)
+
+                await self.channel_layer.group_send(
+                    self.itemlist_group_name,
+                    {
+                        'type': 'item.new',
+                        'item': serialized_item,
+                    }
+                )
+
+            except Exception as e:
+                raise Http404(str(e))
 
             # Save the new item to the database
-            await self.save_item(new_item)
+
+
+            # Saves new item to database
+            # await database_sync_to_async(new_item.save)()
+            # item_serializer = ItemSerializer(new_item)
+            # serialized_item = json.dumps(item_serializer.data)
+
+            # await self.channel_layer.group_send(
+            #     self.itemlist_group_name,
+            #     {
+            #         'type': 'item.new',
+            #         'item': serialized_item,
+            #     }
+            # )
+
+        archived = data.get('archived')
+        active_shopping = data.get('active_shopping')
 
         if archived is not None:
             list_obj = await self.update_list(self.itemlist_id, archived)
@@ -77,6 +117,19 @@ class ListConsumer(AsyncWebsocketConsumer):
                     'list': await self.list_to_json(list_obj),
                 }
             )
+
+    async def item_new(self, event):
+        item = event['item']
+        item_data = json.loads(item)
+        item = Item(**item_data)
+        await self.send(text_data=json.dumps({
+            'type': 'item.new',
+            'item': await self.item_to_json(item),
+        }))
+
+    @database_sync_to_async
+    def item_to_json(self, item):
+        return json.dumps(item, cls=ItemEncoder)
 
     @database_sync_to_async
     def save_item(self, item):
@@ -97,8 +150,12 @@ class ListConsumer(AsyncWebsocketConsumer):
     def update_active_shopping(self, itemlist_id, active_shopping):
         itemlist = ItemList.objects.get(id=itemlist_id)
         itemlist.active_shopping = active_shopping
-        itemlist.save
+        itemlist.save()
         return itemlist
+    
+    @database_sync_to_async
+    def item_to_json(self, item):
+        return item.to_json()
 
     @database_sync_to_async
     def list_to_json(self, list_obj):
